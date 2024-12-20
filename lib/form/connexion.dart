@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:forum/api/login.dart';
+import 'package:forum/provider/auth_provider.dart';
 import 'package:forum/utils/secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:provider/provider.dart';
 
 class Connexion extends StatefulWidget {
   const Connexion({super.key});
@@ -48,14 +51,26 @@ class _ConnexionState extends State<Connexion> {
 
     try {
       final response = await login(_emailController.text, _passwordController.text);
+      final responseData = json.decode(response.body);
+
       await secureStorage.saveCredentials(_emailController.text, _passwordController.text);
+      await secureStorage.saveToken(responseData['token']);
+      await secureStorage.saveData(
+        responseData['data']['roles'][0], 
+        responseData['data']['nom'], 
+        responseData['data']['prenom'], 
+        responseData['data']['dateInscription'], 
+        responseData['data']['id'].toString(),
+      );
+
+      Provider.of<AuthProvider>(context, listen: false).login();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Authentification réussie")
         )
       );
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pushReplacementNamed(context, '/');
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.of(context, rootNavigator: true).pop();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -113,6 +128,7 @@ class _ConnexionState extends State<Connexion> {
                 labelText: 'Mot de passe',
                 border: OutlineInputBorder()
               ),
+              obscureText: true,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Veuillez entrer un mot de passe';

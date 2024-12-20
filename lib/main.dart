@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:forum/myhomepage.dart';
+import 'package:forum/page/myhomepage.dart';
+import 'package:forum/page/profile.dart';
+import 'package:forum/provider/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => AuthProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -22,6 +30,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const MyHomePage(title: 'Forum de Geek'),
+        '/profile': (context) => const Profile(title: 'Profile'),
       },
     );
   }
