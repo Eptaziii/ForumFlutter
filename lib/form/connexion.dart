@@ -55,6 +55,7 @@ class _ConnexionState extends State<Connexion> {
         )
       );
       Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pop(context);
         Navigator.pushReplacementNamed(context, '/');
       });
     } catch (e) {
@@ -119,6 +120,7 @@ class _ConnexionState extends State<Connexion> {
                 }
                 return null;
               },
+              obscureText: true,
             ),
             const Padding(padding: EdgeInsets.all(16.0)),
             _isLoading

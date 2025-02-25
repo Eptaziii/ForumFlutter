@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               );
             }, 
+            tooltip: "Se connecter",
             icon: const Icon(Icons.login)
           ),
           IconButton(
@@ -76,6 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               );
             }, 
+            tooltip: "S'inscrire",
             icon: const FaIcon(FontAwesomeIcons.userPen)
           ),
         ],
