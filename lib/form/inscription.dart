@@ -153,7 +153,7 @@ class _InscriptionState extends State<Inscription> {
                 return null;
               },
             ),
-            const Padding(padding: EdgeInsets.all(16.0)),
+            const Padding(padding: EdgeInsets.all(8.0)),
             TextFormField(
               controller: _prenomController,
               decoration: const InputDecoration(
@@ -167,7 +167,7 @@ class _InscriptionState extends State<Inscription> {
                 return null;
               },
             ),
-            const Padding(padding: EdgeInsets.all(16.0)),
+            const Padding(padding: EdgeInsets.all(8.0)),
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(
@@ -181,7 +181,7 @@ class _InscriptionState extends State<Inscription> {
                 return null;
               },
             ),
-            const Padding(padding: EdgeInsets.all(16.0)),
+            const Padding(padding: EdgeInsets.all(8.0)),
             TextFormField(
               controller: _passwordController,
               decoration: const InputDecoration(
@@ -195,10 +195,79 @@ class _InscriptionState extends State<Inscription> {
                 }
                 return null;
               },
+              onChanged: (value) => setState(() {}),
             ),
-            const Padding(padding: EdgeInsets.all(16.0)),
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "• 12 caractères",
+                      style: TextStyle(color: _passwordController.text.length >= 12 ? Colors.green : Colors.red),
+                    ),
+                  ]
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "• minuscule",
+                      style: TextStyle(color: _passwordController.text.contains(RegExp(r'[a-z]')) ? Colors.green : Colors.red),
+                    ),
+                  ]
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "• majuscule",
+                      style: TextStyle(color: _passwordController.text.contains(RegExp(r'[A-Z]')) ? Colors.green : Colors.red),
+                    ),
+                  ]
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "• chiffre",
+                      style: TextStyle(color: _passwordController.text.contains(RegExp(r'[0-9]')) ? Colors.green : Colors.red),
+                    ),
+                  ]
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "• caractères spéciaux (*#%@/-_\$?!&.,;:)",
+                      style: TextStyle(color: _passwordController.text.contains(RegExp(r'[*#%@/-_\$?!&.,;:]')) ? Colors.green : Colors.red),
+                    ),
+                  ]
+                ),
+              ],
+            ),
+            const Padding(padding: EdgeInsets.all(8.0)),
             ElevatedButton(
-              onPressed: submitForm,
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  if (_passwordController.text.length >= 12 && _passwordController.text.contains(RegExp(r'[a-z]')) && _passwordController.text.contains(RegExp(r'[A-Z]')) && _passwordController.text.contains(RegExp(r'[0-9]')) && _passwordController.text.contains(RegExp(r'[*#%@/-_\$?!&.,;:]'))) {
+                    submitForm();
+                  } else {
+                    showDialog(
+                      context: context, 
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text("Erreur mot de passe"),
+                          content: const Text("Veuillez entrer un mot de passe valide"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              }, 
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                }
+              },
               style: ButtonStyle(
                 fixedSize: WidgetStatePropertyAll(Size(MediaQuery.of(context).size.width, 50))
               ), 
