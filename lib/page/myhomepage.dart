@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forum/api/messages.dart';
+import 'package:forum/form/add_message.dart';
 import 'package:forum/form/connexion.dart';
 import 'package:forum/form/inscription.dart';
 import 'package:forum/main.dart';
 import 'package:forum/models/message.dart';
 import 'package:forum/provider/auth_provider.dart';
+import 'package:forum/utils/secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -21,12 +23,41 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   List<Message> _messages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages();
+  }
+
+  Future<void> _loadMessages() async {
+    _messages.clear();
+    List<Message> mess = [];
+    Map<String, dynamic> messages = await getMessages(1);
+    int nbPageMax = int.parse(messages["hydra:view"]["hydra:last"].toString().substring(25));
+    for (int x = 1; x <= nbPageMax; x++) {
+      Map<String, dynamic> messagesPage = await getMessages(x);
+      List<dynamic> messagesall = messagesPage["hydra:member"];
+      for (int i = 0; i < messagesall.length; i++) {
+        Message message = Message(
+          messagesall[i]["id"], 
+          messagesall[i]["titre"], 
+          messagesall[i]["datePoste"], 
+          messagesall[i]["contenu"], 
+          messagesall[i]["user"],
+          messagesall[i]["parent"],
+        );
+        mess.add(message);
+      }
+      setState(() {
+        _messages = mess;
+      });
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    Map arguments = ModalRoute.of(context)!.settings.arguments as Map;
-    _messages = arguments["messages"];
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 32, 30, 34),
@@ -99,6 +130,26 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+      floatingActionButton: authProvider.isLoggedIn 
+          ? FloatingActionButton(
+            onPressed: () {
+              showDialog(
+                context: context, 
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Votre nouveau message"),
+                    content: AddMessage(onAjouter: () async {
+                      print("A");
+                      await _loadMessages();
+                    },),
+                  );
+                },
+              );
+            },
+            backgroundColor: Colors.black87,
+            child: const Icon(Icons.add),
+          )
+          : const SizedBox.shrink(),
     );
   }
 

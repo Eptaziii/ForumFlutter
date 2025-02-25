@@ -60,10 +60,6 @@ class SplashHomePage extends StatefulWidget {
 }
 
 class _SplashHomePageState extends State<SplashHomePage> {
-  List<Message> _messages = [];
-  bool isDataReady = false;
-  int nb = 0;
-
   @override
   void initState() {
     super.initState();
@@ -71,34 +67,9 @@ class _SplashHomePageState extends State<SplashHomePage> {
   }
 
   Future<void> _loadDataAndNavigate() async {
-    await _loadMessages();
-    setState(() {
-      isDataReady = true;
-    });
-    Navigator.popAndPushNamed(context, '/home', arguments: {"messages":_messages});
-  }
-
-  Future<void> _loadMessages() async {
-    Map<String, dynamic> messages = await getMessages(1);
-    int nbPageMax = int.parse(messages["hydra:view"]["hydra:last"].toString().substring(25));
-    for (int x = 1; x <= nbPageMax; x++) {
-      Map<String, dynamic> messagesPage = await getMessages(x);
-      List<dynamic> messagesall = messagesPage["hydra:member"];
-      for (int i = 0; i < messagesall.length; i++) {
-        Message message = Message(
-          messagesall[i]["id"], 
-          messagesall[i]["titre"], 
-          messagesall[i]["datePoste"], 
-          messagesall[i]["contenu"], 
-          messagesall[i]["user"],
-          messagesall[i]["parent"],
-        );
-        setState(() {
-          _messages.add(message);
-          nb++;
-        });
-      }
-    }
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.popAndPushNamed(context, '/home');
+    },);
   }
   
   @override
@@ -126,7 +97,6 @@ class _SplashHomePageState extends State<SplashHomePage> {
                 ),
               ],
             ),
-            Text(nb.toString()),
           ],
         ),
       ),

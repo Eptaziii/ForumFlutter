@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forum/form/edit_message.dart';
 import 'package:forum/models/message.dart';
 import 'package:forum/provider/auth_provider.dart';
 import 'package:intl/intl.dart';
@@ -137,7 +138,7 @@ class _MessagesUserState extends State<MessagesUser> {
                                       builder: (context) {
                                         return AlertDialog(
                                           title: const Text("Modifier votre message"),
-                                          
+                                          content: EditMessage(message: message),
                                         );
                                       },
                                     );

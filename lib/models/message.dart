@@ -5,6 +5,7 @@ class Message {
   String contenu;
   Map<String, dynamic> user;
   Map<String, dynamic>? parent;
+  // bool isModified;
 
   Message(
     this.id, 
@@ -13,6 +14,7 @@ class Message {
     this.contenu, 
     this.user,
     this.parent,
+    // this.isModified,
   );
 
   int getId() {
