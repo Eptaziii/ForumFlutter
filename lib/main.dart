@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:forum/api/messages.dart';
 import 'package:forum/models/message.dart';
-import 'package:forum/page/messages_user.dart';
-import 'package:forum/page/myhomepage.dart';
-import 'package:forum/page/profil.dart';
+import 'package:forum/page/message_page.dart';
+import 'package:forum/page/messages_user_page.dart';
+import 'package:forum/page/home_page.dart';
+import 'package:forum/page/profil_page.dart';
 import 'package:forum/provider/auth_provider.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const MyHomePage(title: 'Forum de Geek'),
         '/profil': (context) => const Profile(title: 'Profil'),
         '/messagesUser': (context) => const MessagesUser(title: 'Vos messages'),
+        '/message': (context) => const MessagePage(),
       },
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forum/api/messages.dart';
 import 'package:forum/form/edit_message.dart';
 import 'package:forum/models/message.dart';
 import 'package:forum/provider/auth_provider.dart';
@@ -17,13 +18,36 @@ class MessagesUser extends StatefulWidget {
 class _MessagesUserState extends State<MessagesUser> {
   List<Message> _messages = [];
   String _id = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages();
+  }
+
+  Future<void> _loadMessages() async {
+    _messages.clear();
+    List<Message> mess = [];
+    Map<String, dynamic> messages = await getMessages(1);
+    int nbPageMax = int.parse(messages["hydra:view"]["hydra:last"].toString().substring(25));
+    for (int x = 1; x <= nbPageMax; x++) {
+      Map<String, dynamic> messagesPage = await getMessages(x);
+      List<dynamic> messagesall = messagesPage["hydra:member"];
+      for (int i = 0; i < messagesall.length; i++) {
+        Message message = Message.fromMap(messagesall[i]);
+        mess.add(message);
+      }
+      setState(() {
+        _messages = mess;
+      });
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     Map arguments = ModalRoute.of(context)!.settings.arguments as Map;
-    _messages = arguments["messages"];
-    _id = arguments["id"];
+    _id = arguments["id"].toString();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 32, 30, 34),
@@ -138,7 +162,13 @@ class _MessagesUserState extends State<MessagesUser> {
                                       builder: (context) {
                                         return AlertDialog(
                                           title: const Text("Modifier votre message"),
-                                          content: EditMessage(message: message),
+                                          content: EditMessage(onModifier: () {
+                                            setState(() {
+                                              _loadMessages();
+                                            });
+                                          },
+                                          message: message
+                                          ),
                                         );
                                       },
                                     );
@@ -147,8 +177,20 @@ class _MessagesUserState extends State<MessagesUser> {
                                 ),
                                 const SizedBox(width: 5,),
                                 InkWell(
-                                  onTap: () {
-                                    
+                                  onTap: () async {
+                                    int response = await supprimerMessage(message.getId());
+                                    if (response == 1) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text("Votre message a été supprimé avec succès !"), backgroundColor: Colors.red,)
+                                      );
+                                      setState(() {
+                                        _loadMessages();
+                                      });
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text("Une erreur est survenue"), backgroundColor: Colors.red,)
+                                      );
+                                    }
                                   },
                                   child: const Icon(Icons.delete, color: Colors.red,),
                                 ),
@@ -158,13 +200,28 @@ class _MessagesUserState extends State<MessagesUser> {
                         ),
                         Column(
                           children: [
-                            Text(
-                              DateFormat("EEEE d MMMM yyyy", "fr_FR").format(DateTime.parse(message.getDatePoste()))[0].toUpperCase() + DateFormat("EEEE d MMMM yyyy", "fr_FR").format(DateTime.parse(message.getDatePoste())).substring(1),
-                              style: const TextStyle(fontSize: 14),
-                              maxLines: 3,
-                              softWrap: true,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            Row(
+                              children: [
+                                if(message.isModified)
+                                  ...[
+                                    Text(
+                                      "Modifié",
+                                      style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8)
+                                  ],
+                                Text(
+                                  DateFormat("EEEE d MMMM yyyy", "fr_FR").format(DateTime.parse(message.getDatePoste()))[0].toUpperCase() + DateFormat("EEEE d MMMM yyyy", "fr_FR").format(DateTime.parse(message.getDatePoste())).substring(1),
+                                  style: const TextStyle(fontSize: 14),
+                                  maxLines: 3,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            )
                           ],
                         ),
                       ],

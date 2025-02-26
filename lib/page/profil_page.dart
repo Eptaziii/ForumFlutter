@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:forum/form/inscription.dart';
+import 'package:forum/api/users.dart';
 import 'package:forum/models/message.dart';
+import 'package:forum/models/user.dart';
 import 'package:forum/provider/auth_provider.dart';
 import 'package:forum/utils/secure_storage.dart';
 import 'package:provider/provider.dart';
@@ -18,15 +18,9 @@ class _ProfileState extends State<Profile> {
 
   List<Message> _messages = [];
 
-  String _email = "";
-  String _role = "";
-  String _nom = "";
-  String _prenom = "";
-  String _dateInscription = "";
-  String _id = "";
-  Map<String, String> allData = {};
+  late User _user;
 
-  final SecureStorage secureStorage = SecureStorage();
+  Map<String, String> allData = {};
 
   @override
   void initState() {
@@ -35,21 +29,14 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> _loadData() async {
-    final credentials = await secureStorage.readCredentials();
-    final data = await secureStorage.readData();
+    _user = Provider.of<AuthProvider>(context, listen: false).user!;
     setState(() {
-      _email = credentials["email"] ?? "";
-      _role = data['role'] ?? "";
-      _nom = data['nom'] ?? "";
-      _prenom = data['prenom'] ?? "";
-      _dateInscription = data['dateInscription'] ?? "";
-      _id = data['id'] ?? "";
       allData = {
-        "Nom": _nom,
-        "Prénom": _prenom,
-        "Email": _email,
-        "Rôle": _role,
-        "Date d'inscription": _dateInscription,
+        "Nom": _user.nom,
+        "Prénom": _user.prenom,
+        "Email": _user.email,
+        "Rôle": _user.role,
+        "Date d'inscription": _user.dateInscription,
       };
     });
   }
@@ -116,8 +103,6 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    Map arguments = ModalRoute.of(context)!.settings.arguments as Map;
-    _messages = arguments["messages"];
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 32, 30, 34),
@@ -173,9 +158,25 @@ class _ProfileState extends State<Profile> {
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, "/messagesUser", arguments: {"messages": _messages, "id": _id});
+                  Navigator.pushNamed(context, "/messagesUser", arguments: {"messages": _messages, "id": _user.id});
                 }, 
                 child: const Text("Voir vos messages", style: TextStyle(fontSize: 30),),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: () async {
+                  int response = await supprimerUtilisateur(_user.getId());
+                  Provider.of<AuthProvider>(context, listen: false).logout();
+                  await SecureStorage().deleteCredentials();
+                  await SecureStorage().deleteToken();
+                  Navigator.pop(context);
+                }, 
+                style: const ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.red)
+                ),
+                child: const Text("Supprimer votre compte", style: TextStyle(fontSize: 26),),
               ),
             )
           ],

@@ -4,9 +4,10 @@ import 'package:forum/models/message.dart';
 import 'package:forum/utils/secure_storage.dart';
 
 class EditMessage extends StatefulWidget {
+  final VoidCallback onModifier;
   final Message message;
 
-  const EditMessage({super.key, required this.message});
+  const EditMessage({super.key, required this.onModifier, required this.message});
 
   @override
   State<EditMessage> createState() => _EditMessageState();
@@ -85,13 +86,9 @@ class _EditMessageState extends State<EditMessage> {
                         );
                         if (response == 1) {
                           Navigator.pop(context);
-                          Navigator.pushNamedAndRemoveUntil(
-                            context, 
-                            '/', 
-                            (Route<dynamic> route) => false,
-                          );
+                          widget.onModifier();
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Message envoyé avec succès !"), backgroundColor: Colors.green,)
+                            const SnackBar(content: Text("Message modifié avec succès !"), backgroundColor: Colors.blue,)
                           );
                         } else {
                           showDialog(
@@ -99,7 +96,7 @@ class _EditMessageState extends State<EditMessage> {
                             builder: (context) {
                               return const AlertDialog(
                                 title: Text("Erreur"),
-                                content: Text("Erreur lors de l'envoie du message. Veuillez réessayer plus tard !"),
+                                content: Text("Erreur lors de la modification du message. Veuillez réessayer plus tard !"),
                               );
                             },
                           );

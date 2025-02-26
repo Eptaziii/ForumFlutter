@@ -3,9 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:forum/api/messages.dart';
 import 'package:forum/form/add_message.dart';
 import 'package:forum/form/connexion.dart';
+import 'package:forum/form/edit_message.dart';
 import 'package:forum/form/inscription.dart';
 import 'package:forum/main.dart';
 import 'package:forum/models/message.dart';
+import 'package:forum/models/user.dart';
 import 'package:forum/provider/auth_provider.dart';
 import 'package:forum/utils/secure_storage.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +26,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<Message> _messages = [];
 
+  User? user;
+
   @override
   void initState() {
     super.initState();
@@ -39,25 +43,22 @@ class _MyHomePageState extends State<MyHomePage> {
       Map<String, dynamic> messagesPage = await getMessages(x);
       List<dynamic> messagesall = messagesPage["hydra:member"];
       for (int i = 0; i < messagesall.length; i++) {
-        Message message = Message(
-          messagesall[i]["id"], 
-          messagesall[i]["titre"], 
-          messagesall[i]["datePoste"], 
-          messagesall[i]["contenu"], 
-          messagesall[i]["user"],
-          messagesall[i]["parent"],
-        );
+        Message message = Message.fromMap(messagesall[i]);
         mess.add(message);
       }
-      setState(() {
-        _messages = mess;
-      });
+      print(messagesall[0]);
     }
+    setState(() {
+      _messages = mess;
+    });
   }
   
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    if (authProvider.isLoggedIn) {
+      user = authProvider.user;
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 32, 30, 34),
@@ -80,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             onPressed: () async {
               if (authProvider.isLoggedIn) {
-                Navigator.pushNamed(context, "/profil", arguments: {"messages": _messages});
+                Navigator.pushNamed(context, "/profil");
               } else {
                 await showModalBottomSheet(
                   context: context,
@@ -139,9 +140,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   return AlertDialog(
                     title: const Text("Votre nouveau message"),
                     content: AddMessage(onAjouter: () async {
-                      print("A");
                       await _loadMessages();
-                    },),
+                    },
+                    type: "Base",
+                    ),
                   );
                 },
               );
@@ -162,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Card(
             child: InkWell(
               onTap: () {
-                
+                Navigator.pushNamed(context, '/message', arguments: {"message": message});
               },
               child: Column(
                 children: [
@@ -180,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           child:Text(
                             "${message.getTitre()} - ${message.getUser()["nom"]}",
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15
                             ),
@@ -209,14 +211,82 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.all(8.0),
                     color: const Color.fromARGB(255, 161, 161, 161),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: user != null ? user!.getId().toString() == message.getUser()["@id"].toString().substring(17) || user!.role == "ROLE_ADMIN" ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end : MainAxisAlignment.end,
                       children: [
-                        Text(
-                          DateFormat("EEEE d MMMM yyyy", "fr_FR").format(DateTime.parse(message.getDatePoste()))[0].toUpperCase() + DateFormat("EEEE d MMMM yyyy", "fr_FR").format(DateTime.parse(message.getDatePoste())).substring(1),
-                          style: const TextStyle(fontSize: 14),
-                          maxLines: 3,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
+                        if (user != null)
+                          if (message.getUser()["@id"].toString().substring(17) == user!.id.toString() || user!.role == "ROLE_ADMIN")
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () async {
+                                        await showDialog(
+                                          context: context, 
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: const Text("Modifier votre message"),
+                                              content: EditMessage(onModifier: () {
+                                                setState(() {
+                                                  _loadMessages();
+                                                });
+                                              },
+                                              message: message
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: const Icon(Icons.edit, color: Colors.blue,),
+                                    ),
+                                    const SizedBox(width: 5,),
+                                    InkWell(
+                                      onTap: () async {
+                                        int response = await supprimerMessage(message.getId());
+                                        if (response == 1) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text("Votre message a été supprimé avec succès !"), backgroundColor: Colors.red,)
+                                          );
+                                          setState(() {
+                                            _loadMessages();
+                                          });
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text("Une erreur est survenue"), backgroundColor: Colors.red,)
+                                          );
+                                        }
+                                      },
+                                      child: const Icon(Icons.delete, color: Colors.red,),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                if(message.isModified)
+                                  ...[
+                                    Text(
+                                      "Modifié",
+                                      style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8)
+                                  ],
+                                Text(
+                                  DateFormat("EEEE d MMMM yyyy", "fr_FR").format(DateTime.parse(message.getDatePoste()))[0].toUpperCase() + DateFormat("EEEE d MMMM yyyy", "fr_FR").format(DateTime.parse(message.getDatePoste())).substring(1),
+                                  style: const TextStyle(fontSize: 14),
+                                  maxLines: 3,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            )
+                          ],
                         ),
                       ],
                     ),

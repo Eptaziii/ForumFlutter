@@ -4,8 +4,10 @@ import 'package:forum/utils/secure_storage.dart';
 
 class AddMessage extends StatefulWidget {
   final VoidCallback onAjouter;
+  final String type;
+  final int? idParent;
 
-  const AddMessage({super.key, required this.onAjouter});
+  const AddMessage({super.key, required this.onAjouter, required this.type, this.idParent});
 
   @override
   State<AddMessage> createState() => _AddMessageState();
@@ -76,6 +78,8 @@ class _AddMessageState extends State<AddMessage> {
                           _titreController.text, 
                           _contenuController.text,
                           int.parse(id.toString()),
+                          widget.type,
+                          widget.type == "Réponse" ? widget.idParent : null
                         );
                         if (response == 1) {
                           Navigator.pop(context);

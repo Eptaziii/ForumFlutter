@@ -67,4 +67,8 @@ class SecureStorage {
     await _storage.delete(key: _keyDateInscription);
     await _storage.delete(key: _keyId);
   }
+
+  Future<void> deleteToken() async {
+    await _storage.delete(key: _keyToken);
+  }
 }

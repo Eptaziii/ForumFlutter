@@ -5,17 +5,17 @@ class Message {
   String contenu;
   Map<String, dynamic> user;
   Map<String, dynamic>? parent;
-  // bool isModified;
+  bool isModified;
 
-  Message(
-    this.id, 
-    this.titre, 
-    this.datePoste, 
-    this.contenu, 
-    this.user,
-    this.parent,
-    // this.isModified,
-  );
+  Message({
+    required this.id, 
+    required this.titre, 
+    required this.datePoste, 
+    required this.contenu, 
+    required this.user,
+    required this.parent,
+    required this.isModified,
+  });
 
   int getId() {
     return id;
@@ -39,5 +39,17 @@ class Message {
 
   Map<String, dynamic>? getParent() {
     return parent;
+  }
+
+  factory Message.fromMap(Map<String, dynamic> map) {
+    return Message(
+      id: map["id"], 
+      titre: map["titre"], 
+      datePoste: map["datePoste"], 
+      contenu: map["contenu"], 
+      user: map["user"], 
+      parent: map["parent"],
+      isModified: map["modified"],
+    );
   }
 }

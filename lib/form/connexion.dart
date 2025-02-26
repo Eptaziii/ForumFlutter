@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forum/api/login.dart';
+import 'package:forum/models/user.dart';
 import 'package:forum/provider/auth_provider.dart';
 import 'package:forum/utils/secure_storage.dart';
 import 'dart:convert';
@@ -62,7 +63,16 @@ class _ConnexionState extends State<Connexion> {
         responseData['data']['id'].toString(),
       );
 
-      Provider.of<AuthProvider>(context, listen: false).login();
+      User user = User(
+        id: responseData['data']['id'], 
+        nom: responseData['data']['nom'], 
+        prenom: responseData['data']['prenom'], 
+        email: _emailController.text, 
+        role: responseData['data']['roles'][0], 
+        dateInscription: responseData['data']['dateInscription'],
+      );
+
+      Provider.of<AuthProvider>(context, listen: false).login(user);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Authentification réussie")
