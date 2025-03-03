@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:forum/models/message.dart';
 import 'package:forum/utils/secure_storage.dart';
 import 'package:http/http.dart' as http;
 

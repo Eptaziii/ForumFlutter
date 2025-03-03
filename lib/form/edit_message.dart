@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forum/api/messages.dart';
 import 'package:forum/models/message.dart';
-import 'package:forum/utils/secure_storage.dart';
 
 class EditMessage extends StatefulWidget {
   final VoidCallback onModifier;

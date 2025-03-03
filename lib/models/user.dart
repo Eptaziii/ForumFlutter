@@ -42,4 +42,15 @@ class User {
   String getDateInscription(){
     return this.dateInscription;
   }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map["id"], 
+      nom: map["nom"], 
+      prenom: map["prenom"], 
+      email: map["email"], 
+      role: map["roles"][0], 
+      dateInscription: map["dateInscription"],
+    );
+  }
 }

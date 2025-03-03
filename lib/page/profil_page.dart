@@ -167,7 +167,7 @@ class _ProfileState extends State<Profile> {
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () async {
-                  int response = await supprimerUtilisateur(_user.getId());
+                  await supprimerUtilisateur(_user.getId());
                   Provider.of<AuthProvider>(context, listen: false).logout();
                   await SecureStorage().deleteCredentials();
                   await SecureStorage().deleteToken();
