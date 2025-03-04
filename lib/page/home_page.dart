@@ -32,6 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _filterUser = false;
   final TextEditingController _searchController = TextEditingController();
   bool dataLoaded = false;
+  bool messagesLoaded = false;
 
   @override
   void initState() {
@@ -57,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _messages = mess;
       _messagesAll = mess;
+      messagesLoaded = true;
     });
   }
   
@@ -140,91 +142,93 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: !messagesLoaded
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          style: BorderStyle.solid,
-                          color: Colors.red
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              style: BorderStyle.solid,
+                              color: Colors.red
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(45))
+                          ),
+                          hintText: "Rechercher",
                         ),
-                        borderRadius: BorderRadius.all(Radius.circular(45))
-                      ),
-                      hintText: "Rechercher",
-                    ),
-                    onChanged: (value) {
-                      if (value.isNotEmpty) {
-                        setState(() {
-                          if (_filterMessage && _filterUser) {
-                            _messages = _messagesAll.where((mess) => mess.getContenu().toString().toLowerCase().contains(value.toLowerCase()) || mess.getTitre().toString().toLowerCase().contains(value.toLowerCase()) || mess.getUser()["nom"].toString().toLowerCase().contains(value.toLowerCase())).toList();
-                          } else if (_filterMessage) {
-                            _messages = _messagesAll.where((mess) => mess.getContenu().toString().toLowerCase().contains(value.toLowerCase()) || mess.getTitre().toString().toLowerCase().contains(value.toLowerCase())).toList();
-                          } else if (_filterUser) {
-                            _messages = _messagesAll.where((mess) => mess.getUser()["nom"].toString().toLowerCase().contains(value.toLowerCase())).toList();
-                          }
-                        });
-                      } else {
-                        setState(() {
-                          _messages = _messagesAll;
-                        });
-                      }
-                    },
-                  )
-                ),
-                TextButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context, 
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text("Filtres et Tries"),
-                          content: FiltresTries(trie: _trie, filterMessage: _filterMessage, filterUser: _filterUser, onChanged: (String trie, bool filterMessage, bool filterUser) {
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
                             setState(() {
-                              _filterMessage = filterMessage;
-                              _filterUser = filterUser;
+                              if (_filterMessage && _filterUser) {
+                                _messages = _messagesAll.where((mess) => mess.getContenu().toString().toLowerCase().contains(value.toLowerCase()) || mess.getTitre().toString().toLowerCase().contains(value.toLowerCase()) || mess.getUser()["nom"].toString().toLowerCase().contains(value.toLowerCase())).toList();
+                              } else if (_filterMessage) {
+                                _messages = _messagesAll.where((mess) => mess.getContenu().toString().toLowerCase().contains(value.toLowerCase()) || mess.getTitre().toString().toLowerCase().contains(value.toLowerCase())).toList();
+                              } else if (_filterUser) {
+                                _messages = _messagesAll.where((mess) => mess.getUser()["nom"].toString().toLowerCase().contains(value.toLowerCase())).toList();
+                              }
                             });
-                            switch (trie) {
-                              case "Plus récents":
+                          } else {
+                            setState(() {
+                              _messages = _messagesAll;
+                            });
+                          }
+                        },
+                      )
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context, 
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text("Filtres et Tries"),
+                              content: FiltresTries(trie: _trie, filterMessage: _filterMessage, filterUser: _filterUser, onChanged: (String trie, bool filterMessage, bool filterUser) {
                                 setState(() {
-                                  _trie = trie;
-                                  _messages.sort((a, b) => a.getDatePoste().compareTo(b.getDatePoste()));
+                                  _filterMessage = filterMessage;
+                                  _filterUser = filterUser;
                                 });
-                                break;
-                              case "Plus anciens":
-                                setState(() {
-                                  _trie = trie;
-                                  _messages.sort((b, a) => a.getDatePoste().compareTo(b.getDatePoste()));
-                                });
-                                break;
-                              default:
-                            }
-                          },),
+                                switch (trie) {
+                                  case "Plus récents":
+                                    setState(() {
+                                      _trie = trie;
+                                      _messages.sort((a, b) => a.getDatePoste().compareTo(b.getDatePoste()));
+                                    });
+                                    break;
+                                  case "Plus anciens":
+                                    setState(() {
+                                      _trie = trie;
+                                      _messages.sort((b, a) => a.getDatePoste().compareTo(b.getDatePoste()));
+                                    });
+                                    break;
+                                  default:
+                                }
+                              },),
+                            );
+                          },
                         );
-                      },
-                    );
-                  }, 
-                  child: const Row(
-                    children: [
-                      Icon(Icons.filter_alt),
-                      Text("Filtres et Tries")
-                    ],
-                  )
+                      }, 
+                      child: const Row(
+                        children: [
+                          Icon(Icons.filter_alt),
+                          Text("Filtres et Tries")
+                        ],
+                      )
+                    ),
+                  ],
                 ),
+                colMessages()
               ],
             ),
-            colMessages()
-          ],
-        ),
-      ),
+          ),
       floatingActionButton: authProvider.isLoggedIn 
           ? FloatingActionButton(
             onPressed: () {

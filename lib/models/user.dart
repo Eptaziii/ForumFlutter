@@ -39,6 +39,10 @@ class User {
     return this.role;
   }
 
+  void setRole(String nvRole) {
+    role = nvRole;
+  }
+
   String getDateInscription(){
     return this.dateInscription;
   }

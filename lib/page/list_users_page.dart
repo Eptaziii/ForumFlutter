@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forum/api/users.dart';
 import 'package:forum/models/user.dart';
-import 'package:intl/intl.dart';
 
 class ListUsersPage extends StatefulWidget {
   const ListUsersPage({super.key});
@@ -13,6 +12,7 @@ class ListUsersPage extends StatefulWidget {
 class _ListUsersPageState extends State<ListUsersPage> {
 
   List<User> _users = [];
+  bool usersLoaded = false;
 
   @override
   void initState() {
@@ -24,6 +24,7 @@ class _ListUsersPageState extends State<ListUsersPage> {
     final users = (await getAllUsers()) ?? [];
     setState(() {
       _users = users;
+      usersLoaded = true;
     });
   }
 
@@ -48,57 +49,59 @@ class _ListUsersPageState extends State<ListUsersPage> {
           ],
         ), 
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            Row(
+      body: !usersLoaded
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
               children: [
-                Expanded(
-                  child: DataTable(
-                    showCheckboxColumn: false,
-                    columnSpacing: 5,
-                    columns: const [
-                      DataColumn(label: Text("Email")),
-                      DataColumn(label: Text("Rôle")),
-                    ], 
-                    rows: _users.map((User user) {
-                      return DataRow(
-                        onSelectChanged: (value) {
-                          Navigator.pushNamed(context, '/user', arguments: {"user":user});
-                        },
-                        cells: [
-                          DataCell(
-                            Text(
-                              user.getEmail()
-                            )
-                          ),
-                          DataCell(
-                            Text(
-                              user.getRole() == "ROLE_ADMIN" 
-                                  ? "Administrateur" 
-                                  : user.getRole() == "ROLE_BANNED" 
-                                      ? "Bloqué" 
-                                      : "Utilisateur",
-                              style: TextStyle(
-                                color: user.getRole() == "ROLE_ADMIN"
-                                    ? Colors.blue
-                                    : user.getRole() == "ROLE_BANNED"
-                                        ? Colors.red
-                                        : null,
+                Row(
+                  children: [
+                    Expanded(
+                      child: DataTable(
+                        showCheckboxColumn: false,
+                        columnSpacing: 5,
+                        columns: const [
+                          DataColumn(label: Text("Email")),
+                          DataColumn(label: Text("Rôle")),
+                        ], 
+                        rows: _users.map((User user) {
+                          return DataRow(
+                            onSelectChanged: (value) {
+                              Navigator.pushNamed(context, '/user', arguments: {"user":user});
+                            },
+                            cells: [
+                              DataCell(
+                                Text(
+                                  user.getEmail()
+                                )
                               ),
-                            )
-                          ),
-                        ]
-                      );
-                    }).toList(),
-                  )
+                              DataCell(
+                                Text(
+                                  user.getRole() == "ROLE_ADMIN" 
+                                      ? "Administrateur" 
+                                      : user.getRole() == "ROLE_BANNED" 
+                                          ? "Bloqué" 
+                                          : "Utilisateur",
+                                  style: TextStyle(
+                                    color: user.getRole() == "ROLE_ADMIN"
+                                        ? Colors.blue
+                                        : user.getRole() == "ROLE_BANNED"
+                                            ? Colors.red
+                                            : null,
+                                  ),
+                                )
+                              ),
+                            ]
+                          );
+                        }).toList(),
+                      )
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 }

@@ -21,6 +21,7 @@ class _ProfileState extends State<Profile> {
   late User _user;
 
   Map<String, String> allData = {};
+  bool userLoaded = false;
 
   @override
   void initState() {
@@ -38,6 +39,7 @@ class _ProfileState extends State<Profile> {
         "Rôle": _user.role,
         "Date d'inscription": _user.dateInscription,
       };
+      userLoaded = true;
     });
   }
 
@@ -138,49 +140,51 @@ class _ProfileState extends State<Profile> {
         ],
       ),
       body: Center(
-        child: Column(
-          children: [
-            const Padding(padding: EdgeInsets.all(16)),
-            SizedBox(
-              height: 250,
-              width: 300,
-              child: Card(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25)),
-                  side: BorderSide(
-                    color: Colors.black
+        child: !userLoaded
+            ? const CircularProgressIndicator()
+            : Column(
+              children: [
+                const Padding(padding: EdgeInsets.all(16)),
+                SizedBox(
+                  height: 250,
+                  width: 300,
+                  child: Card(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                      side: BorderSide(
+                        color: Colors.black
+                      ),
+                    ),
+                    child: _createProfile(),
                   ),
                 ),
-                child: _createProfile(),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, "/messagesUser", arguments: {"messages": _messages, "id": _user.id});
-                }, 
-                child: const Text("Voir vos messages", style: TextStyle(fontSize: 30),),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: () async {
-                  await supprimerUtilisateur(_user.getId());
-                  Provider.of<AuthProvider>(context, listen: false).logout();
-                  await SecureStorage().deleteCredentials();
-                  await SecureStorage().deleteToken();
-                  Navigator.pop(context);
-                }, 
-                style: const ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(Colors.red)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/messagesUser", arguments: {"messages": _messages, "id": _user.id});
+                    }, 
+                    child: const Text("Voir vos messages", style: TextStyle(fontSize: 30),),
+                  ),
                 ),
-                child: const Text("Supprimer votre compte", style: TextStyle(fontSize: 26),),
-              ),
-            )
-          ],
-        ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await supprimerUtilisateur(_user.getId());
+                      Provider.of<AuthProvider>(context, listen: false).logout();
+                      await SecureStorage().deleteCredentials();
+                      await SecureStorage().deleteToken();
+                      Navigator.pop(context);
+                    }, 
+                    style: const ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(Colors.red)
+                    ),
+                    child: const Text("Supprimer votre compte", style: TextStyle(fontSize: 26),),
+                  ),
+                )
+              ],
+            ),
       ),
     );
   }

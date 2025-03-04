@@ -24,6 +24,7 @@ class _MessagePageState extends State<MessagePage> {
   List<Message> _messages = [];
 
   User? user;
+  bool messagesLoaded = false;
 
   @override
   void initState() {
@@ -46,11 +47,19 @@ class _MessagePageState extends State<MessagePage> {
     }
     setState(() {
       _messages = mess;
+      messagesLoaded = true;
     });
   }
 
   void _loadMessagesEnfants(Message messageParent) async {
     List<Message> messagesEnfants = [];
+    if (messageParent.getParent() != null) {
+      for (Message message in _messages) {
+        if (message.getId() == messageParent.getParent()!["id"]) {
+          
+        }
+      }
+    }
     for (Message message in _messages) {
       if (message.getParent() != null) {
         if (message.getParent()!["id"] == messageParent.getId()) {
@@ -135,14 +144,16 @@ class _MessagePageState extends State<MessagePage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            colMessages()
-          ],
-        ),
-      ),
+      body: !messagesLoaded
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              children: [
+                colMessages()
+              ],
+            ),
+          ),
       floatingActionButton: authProvider.isLoggedIn 
           ? FloatingActionButton(
             onPressed: () {
