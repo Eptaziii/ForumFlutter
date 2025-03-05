@@ -56,21 +56,29 @@ class _MessagePageState extends State<MessagePage> {
     if (messageParent.getParent() != null) {
       for (Message message in _messages) {
         if (message.getId() == messageParent.getParent()!["id"]) {
-          
+          messagesEnfants.add(message);
         }
       }
     }
     for (Message message in _messages) {
       if (message.getParent() != null) {
-        if (message.getParent()!["id"] == messageParent.getId()) {
-          messagesEnfants.add(message);
+        if (messageParent.getParent() == null) {  
+          if (message.getParent()!["id"] == messageParent.getId()) {
+            messagesEnfants.add(message);
+          }
+        } else {
+          if (message.getParent()!["id"] == messagesEnfants[0].getId()) {
+            messagesEnfants.add(message);
+          }
         }
       }
     }
     print(messagesEnfants);
     setState(() {
       _messages.clear();
-      _messages.add(_message!);
+      if (messageParent.getParent() == null) {
+        _messages.add(messageParent);
+      }
       for (Message mess in messagesEnfants) {
         _messages.add(mess);
       }
