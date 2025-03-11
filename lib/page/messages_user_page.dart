@@ -150,53 +150,54 @@ class _MessagesUserState extends State<MessagesUser> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        children: [
-                          Row(
-                            children: [
-                              InkWell(
-                                onTap: () async {
-                                  await showDialog(
-                                    context: context, 
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: const Text("Modifier le message"),
-                                        content: EditMessage(onModifier: () {
-                                          setState(() {
-                                            _loadMessages();
-                                          });
-                                        },
-                                        message: message
-                                        ),
+                      if(Provider.of<AuthProvider>(context, listen: false).user!.getRole() != "ROLE_BANNED")
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                InkWell(
+                                  onTap: () async {
+                                    await showDialog(
+                                      context: context, 
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text("Modifier le message"),
+                                          content: EditMessage(onModifier: () {
+                                            setState(() {
+                                              _loadMessages();
+                                            });
+                                          },
+                                          message: message
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: const Icon(Icons.edit, color: Colors.blue,),
+                                ),
+                                const SizedBox(width: 5,),
+                                InkWell(
+                                  onTap: () async {
+                                    int response = await supprimerMessage(message.getId());
+                                    if (response == 1) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text("Votre message a été supprimé avec succès !"), backgroundColor: Colors.red,)
                                       );
-                                    },
-                                  );
-                                },
-                                child: const Icon(Icons.edit, color: Colors.blue,),
-                              ),
-                              const SizedBox(width: 5,),
-                              InkWell(
-                                onTap: () async {
-                                  int response = await supprimerMessage(message.getId());
-                                  if (response == 1) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("Votre message a été supprimé avec succès !"), backgroundColor: Colors.red,)
-                                    );
-                                    setState(() {
-                                      _loadMessages();
-                                    });
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("Une erreur est survenue"), backgroundColor: Colors.red,)
-                                    );
-                                  }
-                                },
-                                child: const Icon(Icons.delete, color: Colors.red,),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
+                                      setState(() {
+                                        _loadMessages();
+                                      });
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text("Une erreur est survenue"), backgroundColor: Colors.red,)
+                                      );
+                                    }
+                                  },
+                                  child: const Icon(Icons.delete, color: Colors.red,),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
                       Column(
                         children: [
                           Row(

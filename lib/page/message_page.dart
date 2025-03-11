@@ -163,26 +163,28 @@ class _MessagePageState extends State<MessagePage> {
             ),
           ),
       floatingActionButton: authProvider.isLoggedIn 
-          ? FloatingActionButton(
-            onPressed: () {
-              showDialog(
-                context: context, 
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text("Votre nouveau message"),
-                    content: AddMessage(onAjouter: () async {
-                      await _loadMessages();
+          ? authProvider.user!.getRole() != "ROLE_BANNED" 
+              ? FloatingActionButton(
+                onPressed: () {
+                  showDialog(
+                    context: context, 
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text("Votre nouveau message"),
+                        content: AddMessage(onAjouter: () async {
+                          await _loadMessages();
+                        },
+                        type: "Réponse",
+                        idParent: _message!.getId(),
+                        ),
+                      );
                     },
-                    type: "Réponse",
-                    idParent: _message!.getId(),
-                    ),
                   );
                 },
-              );
-            },
-            backgroundColor: Colors.black87,
-            child: const Icon(Icons.add),
-          )
+                backgroundColor: Colors.black87,
+                child: const Icon(Icons.add),
+              )
+              : const SizedBox.shrink()
           : const SizedBox.shrink(),
     );
   }
@@ -239,7 +241,7 @@ class _MessagePageState extends State<MessagePage> {
                   mainAxisAlignment: user != null ? user!.getId().toString() == message.getUser()["@id"].toString().substring(17) || user!.role == "ROLE_ADMIN" ? MainAxisAlignment.spaceBetween : MainAxisAlignment.end : MainAxisAlignment.end,
                   children: [
                     if (user != null)
-                      if (message.getUser()["@id"].toString().substring(17) == user!.id.toString() || user!.role == "ROLE_ADMIN")
+                      if ((message.getUser()["@id"].toString().substring(17) == user!.id.toString() || user!.role == "ROLE_ADMIN") && user!.role != "ROLE_BANNED")
                         Column(
                           children: [
                             Row(
