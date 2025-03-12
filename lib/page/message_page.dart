@@ -73,7 +73,6 @@ class _MessagePageState extends State<MessagePage> {
         }
       }
     }
-    print(messagesEnfants);
     setState(() {
       _messages.clear();
       if (messageParent.getParent() == null) {
@@ -190,14 +189,15 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   Column colMessages() {
+    // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
     Column col = Column(children: []);
     int nbMessage = 0;
     for (Message message in _messages) {
       nbMessage++;
       Padding cardMessage = Padding(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Card(
-          margin: nbMessage != 1 ? EdgeInsets.symmetric(horizontal: 16) : null,
+          margin: nbMessage != 1 ? const EdgeInsets.symmetric(horizontal: 16) : null,
           child: Column(
             children: [
               Container(

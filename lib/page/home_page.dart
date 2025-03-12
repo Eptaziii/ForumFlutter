@@ -52,7 +52,6 @@ class _MyHomePageState extends State<MyHomePage> {
         Message message = Message.fromMap(messagesall[i]);
         mess.add(message);
       }
-      print(messagesall[0]);
     }
     mess.sort((a, b) => a.getDatePoste().compareTo(b.getDatePoste()));
     setState(() {
@@ -256,11 +255,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Column colMessages() {
+    // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
     Column col = Column(children: []);
     for (Message message in _messages) {
       if (message.getParent() == null) {
         Padding cardMessage = Padding(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           child: Card(
             child: InkWell(
               onTap: () {

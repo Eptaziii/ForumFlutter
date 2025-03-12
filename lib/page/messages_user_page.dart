@@ -100,10 +100,11 @@ class _MessagesUserState extends State<MessagesUser> {
   }
 
   Column colMessages() {
+    // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
     Column col = Column(children: []);
     for (Message message in _messages.where((m) => m.getUser()["@id"].toString().substring(17) == _id)) {
       Padding cardMessage = Padding(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Card(
           child: InkWell(
             onTap: () {

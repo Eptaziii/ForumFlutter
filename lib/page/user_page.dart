@@ -74,7 +74,7 @@ class _UserPageState extends State<UserPage> {
                       fontSize: 20
                     ),
                     children: [
-                      TextSpan(text: user.getNom(), style: TextStyle(fontWeight: FontWeight.normal)),
+                      TextSpan(text: user.getNom(), style: const TextStyle(fontWeight: FontWeight.normal)),
                     ],
                   )
                 ),
@@ -87,7 +87,7 @@ class _UserPageState extends State<UserPage> {
                       fontSize: 20
                     ),
                     children: [
-                      TextSpan(text: user.getPrenom(), style: TextStyle(fontWeight: FontWeight.normal)),
+                      TextSpan(text: user.getPrenom(), style: const TextStyle(fontWeight: FontWeight.normal)),
                     ],
                   )
                 ),
@@ -106,7 +106,7 @@ class _UserPageState extends State<UserPage> {
                       fontSize: 20
                     ),
                     children: [
-                      TextSpan(text: user.getEmail(), style: TextStyle(fontWeight: FontWeight.normal)),
+                      TextSpan(text: user.getEmail(), style: const TextStyle(fontWeight: FontWeight.normal)),
                     ],
                   )
                 ),
@@ -125,7 +125,7 @@ class _UserPageState extends State<UserPage> {
                       fontSize: 20
                     ),
                     children: [
-                      TextSpan(text: DateFormat("dd/MM/yyyy").format(DateTime.parse(user.getDateInscription())), style: TextStyle(fontWeight: FontWeight.normal)),
+                      TextSpan(text: DateFormat("dd/MM/yyyy").format(DateTime.parse(user.getDateInscription())), style: const TextStyle(fontWeight: FontWeight.normal)),
                     ],
                   )
                 ),
@@ -314,41 +314,6 @@ class _UserPageState extends State<UserPage> {
           ],
         ),
       ),
-    );
-  }
-
-  void _modifRole(User user) {
-    showDialog(
-      context: context, 
-      builder: (context) {
-        final TextEditingController controller = TextEditingController(text: user.getRole());
-        return AlertDialog(
-          title: const Text("Modifier le rôle"),
-          content: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              children: [
-                DropdownMenu(
-                  controller: controller,
-                  dropdownMenuEntries: const [
-                    DropdownMenuEntry(
-                      value: "ROLE_USER", 
-                      label: "Utilisateur",
-                    ),
-                    DropdownMenuEntry(
-                      value: "ROLE_ADMIN", 
-                      label: "Administrateur",
-                    ),
-                  ],
-                  onSelected: (value) {
-                    
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }

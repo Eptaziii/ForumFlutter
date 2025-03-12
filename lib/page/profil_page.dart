@@ -16,7 +16,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
 
-  List<Message> _messages = [];
+  final List<Message> _messages = [];
 
   late User _user;
 
@@ -44,9 +44,11 @@ class _ProfileState extends State<Profile> {
   }
 
   Column _createProfile() {
+    // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
     Column profile = Column(children: [],);
     
-    Row titre = Row(children: [], mainAxisAlignment: MainAxisAlignment.center,);
+    // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
+    Row titre = Row(mainAxisAlignment: MainAxisAlignment.center,children: [],);
     Text p = const Text(
       "Profil",
       style: TextStyle(
@@ -57,6 +59,7 @@ class _ProfileState extends State<Profile> {
     titre.children.add(p);
     profile.children.add(titre);
 
+    // ignore: prefer_const_constructors, prefer_const_literals_to_create_immutables
     Column col = Column(children: []);
     for (int i = 0; i < allData.length; i++) {
       Row info = Row(
