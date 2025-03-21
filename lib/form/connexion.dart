@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:forum/api/login.dart';
+import 'package:forum/api/messages.dart';
+import 'package:forum/api/users.dart';
+import 'package:forum/models/message.dart';
 import 'package:forum/models/user.dart';
 import 'package:forum/provider/auth_provider.dart';
 import 'package:forum/utils/secure_storage.dart';
@@ -20,6 +23,8 @@ class _ConnexionState extends State<Connexion> {
   final _passwordController = TextEditingController();
 
   bool _isLoading = false;
+
+  List<Message> _messages = [];
 
   final SecureStorage secureStorage = SecureStorage();
 
@@ -44,10 +49,30 @@ class _ConnexionState extends State<Connexion> {
     });
   }
 
+  Future<void> _loadMessages() async {
+    _messages.clear();
+    List<Message> mess = [];
+    Map<String, dynamic> messages = await getMessages(1);
+    int nbPageMax = int.parse(messages["hydra:view"]["hydra:last"].toString().substring(25));
+    for (int x = 1; x <= nbPageMax; x++) {
+      Map<String, dynamic> messagesPage = await getMessages(x);
+      List<dynamic> messagesall = messagesPage["hydra:member"];
+      for (int i = 0; i < messagesall.length; i++) {
+        Message message = Message.fromMap(messagesall[i]);
+        mess.add(message);
+      }
+      setState(() {
+        _messages = mess;
+      });
+    }
+  }
+
   Future<void> _login() async {
     setState(() {
       _isLoading = true;
     });
+
+    await _loadMessages();
 
     try {
       final response = await login(_emailController.text, _passwordController.text);
@@ -60,6 +85,7 @@ class _ConnexionState extends State<Connexion> {
         responseData['data']['nom'], 
         responseData['data']['prenom'], 
         responseData['data']['dateInscription'], 
+        responseData['data']['categorie'].toString(), 
         responseData['data']['id'].toString(),
       );
 
@@ -70,7 +96,19 @@ class _ConnexionState extends State<Connexion> {
         email: _emailController.text, 
         role: responseData['data']['roles'][0], 
         dateInscription: responseData['data']['dateInscription'],
+        categorie: responseData['data']['categorie']
       );
+
+      setState(() {
+        _messages = _messages.where((m) => m.getUser()["@id"].toString().substring(17) == user.getId().toString()).toList();
+      });
+
+      final categorie = user.getCategorie();
+
+      if (categorie != user.getMoyenneMessagesInt(_messages.length)) {
+        user.setCategorie(categorie);
+        await modifierUtilisateurCategorie(user.getId(), user.getCategorie());
+      }
 
       Provider.of<AuthProvider>(context, listen: false).login(user);
       ScaffoldMessenger.of(context).showSnackBar(

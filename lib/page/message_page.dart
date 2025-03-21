@@ -169,7 +169,7 @@ class _MessagePageState extends State<MessagePage> {
                     context: context, 
                     builder: (context) {
                       return AlertDialog(
-                        title: const Text("Votre nouveau message"),
+                        title: const Text("Votre réponse"),
                         content: AddMessage(onAjouter: () async {
                           await _loadMessages();
                         },

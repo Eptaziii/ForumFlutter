@@ -46,6 +46,29 @@ Future<int> modifierUtilisateur(int id, String role) async {
   }
 }
 
+Future<int> modifierUtilisateurCategorie(int id, int categorie) async {
+  final url = Uri.parse('https://s3-4137.nuage-peda.fr/forum/api/users/$id');
+
+  final token = await SecureStorage().readToken();
+
+  final headers = {
+    'accept': 'application/json',
+    'Content-Type': 'application/merge-patch+json',
+    'Authorization': 'Bearer $token',
+  };
+
+  final data = jsonEncode({
+    'categorie': categorie,
+  });
+
+  final response = await http.patch(url, headers: headers, body: data);
+  if (response.statusCode == 200) {
+    return 1;
+  } else {
+    return 2;
+  }
+}
+
 Future<List<User>?> getAllUsers() async {
   final url = Uri.parse('https://s3-4137.nuage-peda.fr/forum/api/users');
 

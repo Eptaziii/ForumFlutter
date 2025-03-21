@@ -63,8 +63,6 @@ Future<int> modifierMessage(String titre, String message, int idMessage) async {
   });
 
   final response = await http.patch(url, headers: headers, body: data);
-  print(response.reasonPhrase);
-  print(response.statusCode);
   if (response.statusCode == 200) {
     return 1;
   } else {

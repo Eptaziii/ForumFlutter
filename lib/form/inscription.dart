@@ -35,6 +35,7 @@ class _InscriptionState extends State<Inscription> {
       'password': mdp,
       'nom': nom,
       'prenom': prenom,
+      'categorie': null
     });
 
     try {

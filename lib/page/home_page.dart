@@ -168,9 +168,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           if (value.isNotEmpty) {
                             setState(() {
                               if (_filterMessage && _filterUser) {
-                                _messages = _messagesAll.where((mess) => mess.getContenu().toString().toLowerCase().contains(value.toLowerCase()) || mess.getTitre().toString().toLowerCase().contains(value.toLowerCase()) || mess.getUser()["nom"].toString().toLowerCase().contains(value.toLowerCase())).toList();
+                                _messages = _messagesAll.where((mess) => mess.getContenu().toString().toLowerCase().contains(value.toLowerCase()) 
+                                    || mess.getTitre().toString().toLowerCase().contains(value.toLowerCase()) 
+                                    || mess.getUser()["nom"].toString().toLowerCase().contains(value.toLowerCase())
+                                ).toList();
                               } else if (_filterMessage) {
-                                _messages = _messagesAll.where((mess) => mess.getContenu().toString().toLowerCase().contains(value.toLowerCase()) || mess.getTitre().toString().toLowerCase().contains(value.toLowerCase())).toList();
+                                _messages = _messagesAll.where((mess) => mess.getContenu().toString().toLowerCase().contains(value.toLowerCase()) 
+                                    || mess.getTitre().toString().toLowerCase().contains(value.toLowerCase())
+                                ).toList();
                               } else if (_filterUser) {
                                 _messages = _messagesAll.where((mess) => mess.getUser()["nom"].toString().toLowerCase().contains(value.toLowerCase())).toList();
                               }

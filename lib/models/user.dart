@@ -6,6 +6,7 @@ class User {
   String email;
   String role;
   String dateInscription;
+  int categorie;
 
   // constructeur
   User({
@@ -14,7 +15,8 @@ class User {
     required this.prenom,
     required this.email,
     required this.role,
-    required this.dateInscription
+    required this.dateInscription,
+    required this.categorie
   }); 
 
   //getter
@@ -47,6 +49,14 @@ class User {
     return this.dateInscription;
   }
 
+  int getCategorie() {
+    return categorie;
+  }
+
+  void setCategorie(int cat) {
+    categorie = cat;
+  }
+
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
       id: map["id"], 
@@ -55,6 +65,31 @@ class User {
       email: map["email"], 
       role: map["roles"][0], 
       dateInscription: map["dateInscription"],
+      categorie: map["categorie"]
     );
+  }
+
+  double getMoyenneMessages(int nbMessages) {
+    List<String> dateInsc = dateInscription.split('/');
+    double moyenne = 0;
+    if ((DateTime.now().difference(DateTime(int.parse(dateInsc[2]), int.parse(dateInsc[1]), int.parse(dateInsc[0]))).inDays) != 0) {
+      moyenne = nbMessages / (DateTime.now().difference(DateTime(int.parse(dateInsc[2]), int.parse(dateInsc[1]), int.parse(dateInsc[0]))).inDays);
+    } else {
+      moyenne = nbMessages / 1;
+    }
+
+    return moyenne;
+  }
+
+  int getMoyenneMessagesInt(int nbMessages) {
+    if (getMoyenneMessages(nbMessages) < 0.7) {
+      return 1;
+    } else if (getMoyenneMessages(nbMessages) >= 0.7 && getMoyenneMessages(nbMessages) <= 2) {
+      return 2;
+    } else if (getMoyenneMessages(nbMessages) > 2) {
+      return 3;
+    } else {
+      return 1;
+    }
   }
 }

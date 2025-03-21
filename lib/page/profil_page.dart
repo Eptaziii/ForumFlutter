@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:forum/api/catgorieUsers.dart';
+import 'package:forum/api/messages.dart';
 import 'package:forum/api/users.dart';
+import 'package:forum/models/categorieUser.dart';
 import 'package:forum/models/message.dart';
 import 'package:forum/models/user.dart';
 import 'package:forum/provider/auth_provider.dart';
@@ -16,7 +19,9 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
 
-  final List<Message> _messages = [];
+  List<Message> _messages = [];
+  String _categorie = "";
+  double _moyenneMessages = 0;
 
   late User _user;
 
@@ -30,17 +35,56 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> _loadData() async {
+
+    List<CategorieUser> cats = (await getAllCategories()) ?? [];
+
     _user = Provider.of<AuthProvider>(context, listen: false).user!;
+    
+    await _loadMessages();
+
     setState(() {
+      _moyenneMessages = _user.getMoyenneMessages(_messages.length);
+
+      int m = _user.getMoyenneMessagesInt(_messages.length);
+      print(m);
+      
+      for (CategorieUser cat in cats) {
+        if (cat.getId() == m) {
+          _categorie = cat.getLibelle();
+        }
+      }
+
+
       allData = {
         "Nom": _user.nom,
         "Prénom": _user.prenom,
         "Email": _user.email,
         "Rôle": _user.role,
         "Date d'inscription": _user.dateInscription,
+        "Catégorie": _categorie,
+        "Messages/Jours": _moyenneMessages.toStringAsFixed(5)
       };
       userLoaded = true;
     });
+  }
+
+  Future<void> _loadMessages() async {
+    _messages.clear();
+    List<Message> mess = [];
+    Map<String, dynamic> messages = await getMessages(1);
+    int nbPageMax = int.parse(messages["hydra:view"]["hydra:last"].toString().substring(25));
+    for (int x = 1; x <= nbPageMax; x++) {
+      Map<String, dynamic> messagesPage = await getMessages(x);
+      List<dynamic> messagesall = messagesPage["hydra:member"];
+      for (int i = 0; i < messagesall.length; i++) {
+        Message message = Message.fromMap(messagesall[i]);
+        mess.add(message);
+      }
+      mess = mess.where((m) => m.getUser()["@id"].toString().substring(17) == _user.getId().toString()).toList();
+      setState(() {
+        _messages = mess;
+      });
+    }
   }
 
   Column _createProfile() {
@@ -77,11 +121,15 @@ class _ProfileState extends State<Profile> {
                     fontWeight: FontWeight.normal,
                     color: allData.values.toList()[i] == "ROLE_ADMIN" 
                         ? Colors.blue
-                        : allData.values.toList()[i] == "ROLE_USER"
+                        : allData.values.toList()[i] == "ROLE_USER" || allData.values.toList()[i] == "Actif"
                             ? Colors.green
                             : allData.values.toList()[i] == "ROLE_BANNED"
                                 ? Colors.red
-                                : Colors.black,
+                                : allData.values.toList()[i] == "En sommeil" 
+                                    ? Colors.purple
+                                    : allData.values.toList()[i] == "Hyper Actif"
+                                        ? Colors.orange
+                                        : Colors.black,
                   ),
                   text: allData.values.toList()[i] == "ROLE_ADMIN" 
                       ? "Administrateur" 
@@ -149,7 +197,7 @@ class _ProfileState extends State<Profile> {
               children: [
                 const Padding(padding: EdgeInsets.all(16)),
                 SizedBox(
-                  height: 250,
+                  height: 300,
                   width: 300,
                   child: Card(
                     shape: const RoundedRectangleBorder(

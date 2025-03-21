@@ -11,6 +11,7 @@ class SecureStorage {
   static const _keyPrenom = 'prenom';
   static const _keyDateInscription = 'dateInscription';
   static const _keyId = 'id';
+  static const _keyCategorie = 'categorie';
 
   Future<void> saveCredentials(String email, String password) async {
     await _storage.write(key: _keyEmail, value: email);
@@ -21,11 +22,12 @@ class SecureStorage {
     await _storage.write(key: _keyToken, value: token);
   }
 
-  Future<void> saveData(String role,String nom, String prenom, String dateInscription, String id) async {
+  Future<void> saveData(String role,String nom, String prenom, String dateInscription, String categorie, String id) async {
     await _storage.write(key: _keyRole, value: role);
     await _storage.write(key: _keyNom, value: nom);
     await _storage.write(key: _keyPrenom, value: prenom);
     await _storage.write(key: _keyDateInscription, value: dateInscription);
+    await _storage.write(key: _keyCategorie, value: id);
     await _storage.write(key: _keyId, value: id);
   }
 
@@ -47,13 +49,15 @@ class SecureStorage {
     String? nom = await _storage.read(key: _keyNom);
     String? prenom = await _storage.read(key: _keyPrenom);
     String? dateInscription = await _storage.read(key: _keyDateInscription);
+    String? categorie = await _storage.read(key: _keyCategorie);
     String? id = await _storage.read(key: _keyId);
     return {
       'role': role,
       'nom': nom,
       'prenom': prenom,
       'dateInscription': dateInscription,
-      'id': id
+      'categorie': categorie,
+      'id': id,
     };
   }
 
@@ -65,6 +69,7 @@ class SecureStorage {
     await _storage.delete(key: _keyNom);
     await _storage.delete(key: _keyPrenom);
     await _storage.delete(key: _keyDateInscription);
+    await _storage.delete(key: _keyCategorie);
     await _storage.delete(key: _keyId);
   }
 
